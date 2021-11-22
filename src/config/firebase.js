@@ -18,7 +18,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const firebaseApp = null;
+let firebaseApp = null;
 try {
   firebaseApp = initializeApp(firebaseConfig);
 } catch (error) {
