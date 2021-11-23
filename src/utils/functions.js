@@ -26,6 +26,8 @@ export const joinRoom = async (roomID, name) => {
   const docRef = doc(db, "games", roomID);
   const docSnap = await getDoc(docRef);
 
+  console.log(roomID, name);
+
   let gameObj = docSnap?.data?.();
 
   // see which player is already in the room then enter another player accordingly
