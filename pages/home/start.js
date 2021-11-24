@@ -32,6 +32,7 @@ const Home = () => {
         ...NEW_GAME_OBJ,
         player_one: username,
         turn: username,
+        first_turn: username,
       });
       await setGlobalState({ username: username });
       Router.push(`/game/${roomID}`);

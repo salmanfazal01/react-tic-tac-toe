@@ -1,11 +1,18 @@
+/* eslint-disable @next/next/no-img-element */
+import { Box, Container, Grid, Hidden, Stack } from "@mui/material";
 import Router, { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
+import Logo from "../../src/assets/images/logo.png";
 import Board from "../../src/components/Board";
+import PlayerCard from "../../src/components/PlayerCard";
 import { useFirestore } from "../../src/config/firebase";
 import { GlobalContext } from "../../src/context/globalContext";
+import X from "../../src/assets/images/x.png";
+import O from "../../src/assets/images/o.png";
 import {
   changeGameTurn,
   getGameRoom,
+  setNewGame,
   updateGameBoard,
 } from "../../src/utils/functions";
 
@@ -33,11 +40,22 @@ const Game = () => {
   }, [db, roomID]);
 
   const updateBoard = (board) => {
-    updateGameBoard(board, roomID);
+    updateGameBoard(board, roomID, room);
   };
 
   const changeTurn = (turn) => {
     changeGameTurn(turn, roomID);
+  };
+
+  const updateWinner = (winner) => {
+    updateGameWinner(winner.player, roomID, room);
+  };
+
+  const newGame = () => {
+    const first_turn =
+      room.first_turn === room.player_one ? room.player_two : room.player_one;
+
+    setNewGame(roomID, first_turn);
   };
 
   if (loading) {
@@ -49,19 +67,85 @@ const Game = () => {
   }
 
   return (
-    <div>
-      Player One: {room.player_one} <br />
-      Player Two: {room.player_two || "Waiting ..."} <br />
-      <Board
-        board={room.board}
-        p1={room.player_one}
-        p2={room.player_two}
-        turn={room.turn}
-        user={username}
-        updateBoard={updateBoard}
-        changeTurn={changeTurn}
-      />
-    </div>
+    <Container maxWidth="xl" sx={{ py: 3, height: "100vh" }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ height: 130 }}
+      >
+        <Box sx={{ p: 2, border: "2px dashed grey", borderRadius: 3 }}>
+          <img
+            src={Logo}
+            alt="Logo"
+            style={{ width: 80, objectFit: "contain" }}
+          />
+        </Box>
+      </Stack>
+      <Grid
+        container
+        spacing={5}
+        justifyContent="space-around"
+        alignItems="center"
+      >
+        <Hidden mdDown>
+          <Grid item md={2}>
+            <Stack alignItems="center">
+              <PlayerCard
+                player="Player 1"
+                username={room.player_one}
+                wins={room.player_one_wins}
+                xo={X}
+                active={room.turn === room.player_one}
+              />
+            </Stack>
+          </Grid>
+        </Hidden>
+
+        <Grid item xs={12} md={8}>
+          <Stack alignItems="center" sx={{ p: 3 }}>
+            <Board
+              board={room.board}
+              p1={room.player_one}
+              p2={room.player_two}
+              turn={room.turn}
+              user={username}
+              game_over={room.game_over}
+              updateBoard={updateBoard}
+              changeTurn={changeTurn}
+              updateWinner={updateWinner}
+              newGame={newGame}
+            />
+          </Stack>
+        </Grid>
+
+        <Hidden mdUp>
+          <Grid item md={2}>
+            <Stack alignItems="center">
+              <PlayerCard
+                player="Player 1"
+                username={room.player_one}
+                wins={room.player_one_wins}
+                xo={X}
+                active={room.turn === room.player_one}
+              />
+            </Stack>
+          </Grid>
+        </Hidden>
+
+        <Grid item md={2}>
+          <Stack>
+            <PlayerCard
+              player="Player 2"
+              username={room.player_two || 'Waiting...'}
+              wins={room.player_two_wins}
+              xo={X}
+              active={room.turn === room.player_two}
+            />
+          </Stack>
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 

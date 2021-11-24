@@ -1,8 +1,8 @@
+import { Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { DEFAULT_BOARD } from "../utils/functions";
 import { calculateWinner } from "../utils/game";
 import Square from "./Square";
-
-const DEFAULT_BOARD = Array(9).fill(0);
 
 const Board = (props) => {
   const {
@@ -11,26 +11,29 @@ const Board = (props) => {
     p2,
     turn,
     user,
+    game_over,
     updateBoard,
     changeTurn,
+    newGame,
   } = props;
 
-  const [winner, setWinner] = useState(false);
+  const [winner, setWinner] = useState(null);
 
-  const clearBoard = () => {
-    updateBoard(DEFAULT_BOARD);
-    setXTurn(true);
-  };
-
-  const handleClick = (i) => {
-    const _squares = board.slice();
+  useEffect(() => {
     const _winner = calculateWinner(board);
-    console.log(_winner);
-    if (_winner) {
+    if (_winner?.player) {
       setWinner(_winner);
-      return;
+    } else {
+      setWinner(null);
     }
-    if (_squares[i] || turn !== user) return;
+  }, [board]);
+
+  const handleClick = (i, e) => {
+    e.preventDefault();
+    
+    if (board[i] || turn !== user || game_over) return;
+
+    const _squares = board.slice();
 
     _squares[i] = turn === p1 ? "X" : "O";
 
@@ -38,35 +41,59 @@ const Board = (props) => {
     updateBoard(_squares);
   };
 
-  console.log(turn, user, winner);
-
   const renderSquare = (i) => (
-    <Square value={board[i]} handleClick={() => handleClick(i)} />
+    <Square
+      value={board[i]}
+      handleClick={(e) => handleClick(i, e)}
+      idx={i}
+      winner={winner?.squares?.includes(i)}
+    />
   );
 
   const status =
     winner !== false ? `Winner: ${winner}` : `Next Player is ${turn}`;
 
   return (
-    <div>
-      <div className="status">{status}</div>
-      <div className="board-row">
+    <Stack
+      container
+      justifyContent="center"
+      alignItems="center"
+      sx={{
+        padding: 2,
+        height: "70vh",
+        width: "100%",
+        maxWidth: 800,
+        borderRadius: 20,
+        border: "3px dashed white",
+      }}
+    >
+      {/* <div className="status">{status}</div> */}
+      <Stack direction="row" sx={{ flex: 1, width: "100%" }}>
         {renderSquare(0)}
         {renderSquare(1)}
         {renderSquare(2)}
-      </div>
-      <div className="board-row">
+      </Stack>
+      <Stack direction="row" sx={{ flex: 1, width: "100%" }}>
         {renderSquare(3)}
         {renderSquare(4)}
         {renderSquare(5)}
-      </div>
-      <div className="board-row">
+      </Stack>
+      <Stack direction="row" sx={{ flex: 1, width: "100%" }}>
         {renderSquare(6)}
         {renderSquare(7)}
         {renderSquare(8)}
-      </div>
-      <button onClick={() => clearBoard()}>Clear The Board</button>
-    </div>
+      </Stack>
+      {winner?.player && (
+        <button
+          onClick={() => {
+            newGame();
+            setWinner(false);
+          }}
+        >
+          Clear The Board
+        </button>
+      )}
+    </Stack>
   );
 };
 
