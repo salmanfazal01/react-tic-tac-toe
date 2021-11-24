@@ -6,6 +6,7 @@ import { GlobalContextProvider } from "../src/context/globalContext";
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useAnalytics();
   }, []);
 
