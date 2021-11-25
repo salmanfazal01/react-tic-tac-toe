@@ -1,9 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
-import { Box, Container, Stack, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Checkbox,
+  Container,
+  Hidden,
+  Snackbar,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import Router from "next/router";
 import { useContext, useState } from "react";
-import Logo from "../../src/assets/images/logo.png";
 import CustomButton from "../../src/components/CustomButton";
+import LogoButton from "../../src/components/LogoButton";
 import { GlobalContext } from "../../src/context/globalContext";
 import { createRoom, joinRoom } from "../../src/utils/functions";
 
@@ -17,11 +26,13 @@ const NEW_GAME_OBJ = {
 };
 
 const Home = () => {
+  const [error, setError] = useState(null);
   const { globalState, setGlobalState } = useContext(GlobalContext);
 
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState(globalState.username || "");
   const [code, setCode] = useState("");
+  const [playRandom, setPlayRandom] = useState(false);
   const [mode, setMode] = useState("create");
 
   const handleNewRoomClick = async (e) => {
@@ -33,6 +44,7 @@ const Home = () => {
         player_one: username,
         turn: username,
         first_turn: username,
+        random: playRandom,
       });
       await setGlobalState({ username: username });
       Router.push(`/game/${roomID}`);
@@ -49,9 +61,8 @@ const Home = () => {
       let response = await joinRoom(code, username);
       await setGlobalState({ username: username });
       Router.push(`/game/${response.roomID}`);
-    } catch (error) {
-      console.log(error);
-      console.log("No such room! Please enter a valid Room ID");
+    } catch (err) {
+      setError(err);
     }
     setLoading(false);
   };
@@ -66,18 +77,15 @@ const Home = () => {
           justifyContent="space-between"
           alignItems="center"
           sx={{ height: 130 }}
+          spacing={3}
         >
-          <Box sx={{ p: 2, border: "2px dashed grey", borderRadius: 3 }}>
-            <img
-              src={Logo}
-              alt="Logo"
-              style={{ width: 80, objectFit: "contain" }}
-            />
-          </Box>
+          <LogoButton />
 
-          <Typography variant="h5" sx={{ flex: 1, fontWeight: 700 }}>
-            Enter your name and select your game type
-          </Typography>
+          <Hidden mdUp>
+            <Typography variant="h5" sx={{ flex: 1, fontWeight: 700 }}>
+              Enter your name and select your game type
+            </Typography>
+          </Hidden>
         </Stack>
 
         <Stack
@@ -86,7 +94,13 @@ const Home = () => {
           sx={{ height: "calc(100vh - 178px)" }}
         >
           <Container maxWidth="sm" sx={{ mb: 5 }}>
-            <Typography sx={{ mb: 1, ml: 1 }}>Your Username</Typography>
+            <Hidden mdDown>
+              <Typography variant="h5" sx={{ flex: 1, fontWeight: 700, mb: 5 }}>
+                Enter your name and select your game type
+              </Typography>
+            </Hidden>
+
+            <Typography sx={{ mb: 1.5, ml: 1 }}>Your Username</Typography>
             <TextField
               placeholder="Your Username"
               value={username}
@@ -110,7 +124,7 @@ const Home = () => {
               }}
             />
 
-            <Typography sx={{ mb: 1, ml: 1 }}>Game type</Typography>
+            <Typography sx={{ mb: 1.5, ml: 1 }}>Game type</Typography>
             <Stack direction="row" spacing={2} sx={{ mb: 5 }}>
               <CustomButton
                 onClick={() => setMode("create")}
@@ -150,15 +164,14 @@ const Home = () => {
               </CustomButton>
             </Stack>
 
-            {mode === "join" && (
+            {mode === "join" ? (
               <>
-                <Typography sx={{ mb: 1, ml: 1 }}>Game Code</Typography>
+                <Typography sx={{ mb: 1.5, ml: 1 }}>Game Code</Typography>
                 <TextField
-                  placeholder="Code"
+                  placeholder="Leave empty for a random opponent"
                   value={code}
                   onChange={(e) => setCode(e.target.value || "")}
                   fullWidth
-                  required
                   variant="outlined"
                   inputProps={{
                     maxLength: 15,
@@ -176,15 +189,40 @@ const Home = () => {
                   }}
                 />
               </>
+            ) : (
+              <Stack direction="row" alignItems="center">
+                <Checkbox
+                  checked={playRandom}
+                  onChange={(_, v) => setPlayRandom(v)}
+                  sx={{ mr: 2 }}
+                />
+                <Typography variant="h6">
+                  Play against a random opponent?
+                </Typography>
+              </Stack>
             )}
           </Container>
 
           <CustomButton type="submit">Next</CustomButton>
         </Stack>
-
-        {/* <Button onClick={handleNewRoomClick}>Create Room</Button>
-        <Button onClick={handleJoinRoomClick}>Join Room</Button> */}
       </form>
+
+      {error && (
+        <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open
+          autoHideDuration={4000}
+          onClose={() => setError(null)}
+        >
+          <Alert
+            onClose={() => setError(null)}
+            severity="error"
+            sx={{ maxWidth: 300 }}
+          >
+            {error.message}
+          </Alert>
+        </Snackbar>
+      )}
     </Container>
   );
 };

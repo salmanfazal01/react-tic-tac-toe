@@ -1,6 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 import { Box, Container, Stack } from "@mui/material";
-import Image from "next/image";
-import Link from "next/link";
+import Router from "next/router";
 import React from "react";
 import Fade from "react-reveal/Fade";
 import RubberBand from "react-reveal/RubberBand";
@@ -27,13 +27,19 @@ const Home = () => {
           </RubberBand>
 
           <Fade left>
-            <Link href="/home/start" passHref>
-              <CustomButton sx={{ mb: 3 }}>Multiplayer</CustomButton>
-            </Link>
+            <CustomButton
+              sx={{ mb: 3 }}
+              onClick={() => Router.push("/home/start")}
+            >
+              Multiplayer
+            </CustomButton>
           </Fade>
 
           <Fade right>
-            <CustomButton background="linear-gradient(45deg, rgba(62,1,133,1) 0%, rgba(81,8,202,1) 100%)">
+            <CustomButton
+              background="linear-gradient(45deg, rgba(62,1,133,1) 0%, rgba(81,8,202,1) 100%)"
+              disabled
+            >
               Local Multiplayer
             </CustomButton>
           </Fade>

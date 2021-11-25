@@ -4,6 +4,10 @@ import {
   getFirestore,
   onSnapshot,
   query,
+  collection,
+  where,
+  limit,
+  getDocs,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -26,22 +30,44 @@ export const createRoom = (obj) => {
 };
 
 export const joinRoom = async (roomID, name) => {
-  const docRef = doc(db, "games", roomID);
-  const docSnap = await getDoc(docRef);
+  let gameObj = null;
+  if (roomID) {
+    const q = doc(db, "games", roomID);
+    const docSnap = await getDoc(q);
+    gameObj = docSnap?.data?.();
+  } else {
+    const q = query(
+      collection(db, "games"),
+      where("random", "==", true),
+      limit(1)
+    );
+    const docSnap = await getDocs(q);
+    gameObj = docSnap?.docs?.[0]?.data();
+  }
 
   return new Promise((resolve, reject) => {
-    let gameObj = docSnap?.data?.();
+    if (!gameObj?.id && !roomID)
+      reject({
+        error: "NO_GAME",
+        message:
+          "No Game Available! Start a new game and wait for someone to join.",
+      });
+    if (!gameObj?.id)
+      reject({
+        error: "NOT_FOUND",
+        message: "Game Not Found. Please check your game ID again.",
+      });
 
-    if (!gameObj.player_one)
-      reject({ error: "NOT_FOUND", message: "Room Not Found" });
+    const _id = gameObj.id;
 
     gameObj.player_two = name === gameObj.player_one ? name + "2" : name;
+    gameObj.random = false;
 
-    const docRef = doc(db, "games", roomID);
+    const docRef = doc(db, "games", _id);
     const payload = { ...gameObj, updatedTimestamp: serverTimestamp() };
 
     updateDoc(docRef, payload)
-      .then(() => resolve({ roomID }))
+      .then(() => resolve({ roomID: _id }))
       .catch((error) => reject(error));
   });
 };

@@ -64,6 +64,9 @@ const Square = ({ handleClick, value, idx, winner }) => {
         fontSize: 30,
         ...getBorder(),
         backgroundColor: winner && "#FFD652",
+        "&:hover": {
+          backgroundColor: winner && "#FFD652",
+        },
       }}
     >
       {value === "O" ? (

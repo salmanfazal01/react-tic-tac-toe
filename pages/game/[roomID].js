@@ -1,14 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
 import { Box, Container, Grid, Hidden, Stack } from "@mui/material";
+import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
-import Logo from "../../src/assets/images/logo.png";
+import O from "../../src/assets/images/o.png";
+import X from "../../src/assets/images/x.png";
 import Board from "../../src/components/Board";
+import LogoButton from "../../src/components/LogoButton";
 import PlayerCard from "../../src/components/PlayerCard";
 import { useFirestore } from "../../src/config/firebase";
 import { GlobalContext } from "../../src/context/globalContext";
-import X from "../../src/assets/images/x.png";
-import O from "../../src/assets/images/o.png";
 import {
   changeGameTurn,
   getGameRoom,
@@ -68,31 +69,37 @@ const Game = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 3, height: "100vh" }}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{ height: 130 }}
-      >
-        <Box sx={{ p: 2, border: "2px dashed grey", borderRadius: 3 }}>
-          <img
-            src={Logo}
-            alt="Logo"
-            style={{ width: 80, objectFit: "contain" }}
-          />
-        </Box>
-      </Stack>
+      <Hidden mdDown>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{
+            height: 130,
+            width: "fit-content",
+          }}
+        >
+          <LogoButton />
+        </Stack>
+      </Hidden>
+
       <Grid
         container
         spacing={5}
         justifyContent="space-around"
         alignItems="center"
+        sx={(theme) => ({
+          [theme.breakpoints.up("md")]: {
+            mt: -12,
+          },
+        })}
       >
         <Hidden mdDown>
           <Grid item md={2}>
             <Stack alignItems="center">
               <PlayerCard
                 player="Player 1"
+                user={username}
                 username={room.player_one}
                 wins={room.player_one_wins}
                 xo={X}
@@ -124,6 +131,7 @@ const Game = () => {
             <Stack alignItems="center">
               <PlayerCard
                 player="Player 1"
+                user={username}
                 username={room.player_one}
                 wins={room.player_one_wins}
                 xo={X}
@@ -137,9 +145,10 @@ const Game = () => {
           <Stack>
             <PlayerCard
               player="Player 2"
-              username={room.player_two || 'Waiting...'}
+              user={username}
+              username={room.player_two || "Waiting..."}
               wins={room.player_two_wins}
-              xo={X}
+              xo={O}
               active={room.turn === room.player_two}
             />
           </Stack>

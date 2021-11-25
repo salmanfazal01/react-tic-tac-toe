@@ -2,17 +2,23 @@
 import { Typography, Box, Avatar, Stack, Grid } from "@mui/material";
 import React from "react";
 
-const PlayerCard = ({ player, username, wins = 0, xo, active }) => {
-  console.log(wins);
+const PlayerCard = ({ player, user, username, wins = 0, xo, active }) => {
   return (
-    <Box sx={{ maxWidth: "150px" }}>
-      {active && (
+    <Box
+      sx={(theme) => ({
+        maxWidth: "150px",
+        [theme.breakpoints.up("md")]: { marginTop: -7 },
+      })}
+    >
+      {active ? (
         <Typography
           variant="h6"
           sx={{ mb: 4, fontWeight: 700, textAlign: "center" }}
         >
-          Your Turn
+          {user === username ? "Your Turn" : "Their Turn"}
         </Typography>
+      ) : (
+        <Box sx={{ height: 63 }} />
       )}
 
       <Box
