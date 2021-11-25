@@ -60,14 +60,14 @@ export const joinRoom = async (roomID, name) => {
 
     const _id = gameObj.id;
 
-    gameObj.player_two = name === gameObj.player_one ? name + "2" : name;
+    gameObj.player_two = name === gameObj.player_one ? name + " 2" : name;
     gameObj.random = false;
 
     const docRef = doc(db, "games", _id);
     const payload = { ...gameObj, updatedTimestamp: serverTimestamp() };
 
     updateDoc(docRef, payload)
-      .then(() => resolve({ roomID: _id }))
+      .then(() => resolve({ roomID: _id, username: gameObj.player_two }))
       .catch((error) => reject(error));
   });
 };

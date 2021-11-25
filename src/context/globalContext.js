@@ -7,7 +7,7 @@ export const GlobalContext = createContext({});
 
 // Create a provider for components to consume and subscribe to changes
 export const GlobalContextProvider = ({ children }) => {
-  const [state, setState] = useState({ username: "X" });
+  const [state, setState] = useState({ username: "PLAYER" });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

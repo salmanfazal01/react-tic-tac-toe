@@ -35,18 +35,20 @@ const Home = () => {
   const [playRandom, setPlayRandom] = useState(false);
   const [mode, setMode] = useState("create");
 
+  const _username = username.toUpperCase();
+
   const handleNewRoomClick = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       let { roomID } = await createRoom({
         ...NEW_GAME_OBJ,
-        player_one: username,
-        turn: username,
-        first_turn: username,
+        player_one: _username,
+        turn: _username,
+        first_turn: _username,
         random: playRandom,
       });
-      await setGlobalState({ username: username });
+      await setGlobalState({ username: _username });
       Router.push(`/game/${roomID}`);
     } catch (error) {
       console.log(error);
@@ -57,9 +59,10 @@ const Home = () => {
   const handleJoinRoomClick = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      let response = await joinRoom(code, username);
-      await setGlobalState({ username: username });
+      let response = await joinRoom(code, _username);
+      await setGlobalState({ username: response.username });
       Router.push(`/game/${response.roomID}`);
     } catch (err) {
       setError(err);
@@ -103,7 +106,7 @@ const Home = () => {
             <Typography sx={{ mb: 1.5, ml: 1 }}>Your Username</Typography>
             <TextField
               placeholder="Your Username"
-              value={username}
+              value={_username}
               onChange={(e) => setUsername(e.target.value || "")}
               fullWidth
               variant="outlined"
